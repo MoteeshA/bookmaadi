@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registered Events - BookMadi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 20px;
+            text-align: center;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+        header h1 {
+            margin: 0;
+        }
+        .button {
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            padding: 10px 20px;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .remove-button {
+            background-color: #dc3545;
+        }
+        .remove-button:hover {
+            background-color: #c82333;
+        }
+        main {
+            margin-top: 60px;
+            padding: 20px;
+        }
+        .event-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .event-item {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            padding: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+        .event-item h2 {
+            margin: 0 0 10px;
+            font-size: 24px;
+            color: #333;
+        }
+        .event-item p {
+            margin: 5px 0;
+            color: #555;
+        }
+        .event-item img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .remove-button-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        @media (max-width: 600px) {
+            .event-item {
+                padding: 15px;
+            }
+            .event-item h2 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Registered Events</h1>
+        <a href="{{ url_for('home') }}" class="button">Back to Home</a>
+    </header>
+    <main>
+        {% if events %}
+            <ul class="event-list">
+                {% for event in events %}
+                    <li class="event-item">
+                        <div class="remove-button-container">
+                            <form action="{{ url_for('unregister_event', event_id=event.id) }}" method="post">
+                                <button type="submit" class="button remove-button">Remove</button>
+                            </form>
+                        </div>
+                        <h2>{{ event.title }}</h2>
+                        <p><strong>Date:</strong> {{ event.date.strftime('%Y-%m-%d') }}</p>
+                        <p><strong>Location:</strong> {{ event.location }}</p>
+                        <p><strong>Description:</strong> {{ event.description }}</p>
+                        {% if event.image_url %}
+                            <img src="{{ event.image_url }}" alt="Event Image">
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No events registered yet.</p>
+        {% endif %}
+    </main>
+</body>
+</html>

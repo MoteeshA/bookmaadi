@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Create Event</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .create-event-container {
+            width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            height: 120px;
+        }
+
+        .form-group button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .form-group button:hover {
+            background-color: #0056b3;
+        }
+
+        .event-image-container {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .event-image {
+            width: 100%; /* Adjust width as needed */
+            max-height: 400px; /* Limit height for display */
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            object-fit: cover; /* Maintain aspect ratio */
+        }
+
+        .event-details {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f9fa; /* Light gray background */
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .event-details h3 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .event-details p {
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .qr-code-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .qr-code {
+            max-width: 200px;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="create-event-container">
+        <h2>Create Event</h2>
+        <form method="POST" action="{{ url_for('create_event') }}" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="event_title">Event Title</label>
+                <input type="text" id="event_title" name="event_title" required>
+            </div>
+            <div class="form-group">
+                <label for="event_date">Event Date</label>
+                <input type="date" id="event_date" name="event_date" required>
+            </div>
+            <div class="form-group">
+                <label for="event_location">Event Location</label>
+                <input type="text" id="event_location" name="event_location" required>
+            </div>
+            <div class="form-group">
+                <label for="event_description">Event Description</label>
+                <textarea id="event_description" name="event_description" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="event_image">Event Image</label>
+                <input type="file" id="event_image" name="event_image" accept="image/*" required>
+            </div>
+            <div class="form-group">
+                <button type="submit">Create Event</button>
+            </div>
+        </form>
+
+        <!-- Placeholder for event image display -->
+        <div class="event-image-container" id="eventImageContainer" style="display: none;">
+            <img id="eventImage" class="event-image" src="" alt="Event Image">
+        </div>
+
+        <!-- Placeholder for event details -->
+        <div class="event-details" id="eventDetailsContainer" style="display: none;">
+            <h3 id="eventDetailsTitle"></h3>
+            <p id="eventDetailsDate"></p>
+            <p id="eventDetailsLocation"></p>
+            <p id="eventDetailsDescription"></p>
+        </div>
+
+        <!-- Placeholder for QR code display -->
+        <div class="qr-code-container" id="qrCodeContainer" style="display: none;">
+            <img id="qrCode" class="qr-code" src="" alt="QR Code">
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Function to handle file input change event
+            document.getElementById('event_image').addEventListener('change', function (event) {
+                var file = event.target.files[0];
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('eventImage').src = e.target.result;
+                    document.getElementById('eventImageContainer').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            });
+
+            // Function to update event details display
+            document.querySelector('form').addEventListener('submit', function () {
+                var eventTitle = document.getElementById('event_title').value;
+                var eventDate = document.getElementById('event_date').value;
+                var eventLocation = document.getElementById('event_location').value;
+                var eventDescription = document.getElementById('event_description').value;
+
+                document.getElementById('eventDetailsTitle').textContent = eventTitle;
+                document.getElementById('eventDetailsDate').textContent = 'Date: ' + eventDate;
+                document.getElementById('eventDetailsLocation').textContent = 'Location: ' + eventLocation;
+                document.getElementById('eventDetailsDescription').textContent = 'Description: ' + eventDescription;
+
+                document.getElementById('eventDetailsContainer').style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

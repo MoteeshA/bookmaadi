@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Welcome to BookMadi 🎉</title>
+    <style>
+        /* Additional CSS styles specific to this page */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa; /* Light gray background */
+            margin: 0;
+            padding: 0;
+        }
+
+        .home-container {
+            width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5a623, #e86060); /* Gradient background */
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            color: #ffffff; /* White text */
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #ffffff; /* White text */
+            text-align: center;
+            font-size: 32px; /* Larger font size */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .create-event-btn, .registered-events-btn {
+            background-color: #4a90e2; /* Blue button */
+            color: #ffffff; /* White text */
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .create-event-btn:hover, .registered-events-btn:hover {
+            background-color: #3880d6; /* Darker blue on hover */
+        }
+
+        .event-list {
+            margin-top: 30px;
+        }
+
+        .event {
+            display: flex;
+            align-items: flex-start; /* Align items at the start */
+            padding: 15px;
+            background-color: #ffffff; /* White background */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .event:hover {
+            transform: translateY(-5px);
+        }
+
+        .event-image {
+            max-width: 200px;
+            height: auto;
+            border-radius: 8px;
+            margin-right: 15px;
+        }
+
+        .event-details {
+            flex: 1;
+        }
+
+        .event h3 {
+            margin-bottom: 10px;
+            color: #333333; /* Dark text */
+            font-size: 24px; /* Larger font size */
+        }
+
+        .event p {
+            margin: 5px 0;
+            color: #666666; /* Gray text */
+        }
+
+        .register-btn, .remove-event-btn, .logout-btn {
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .register-btn {
+            background-color: #28a745; /* Green register button */
+            color: #ffffff; /* White text */
+        }
+
+        .register-btn:hover {
+            background-color: #218838; /* Darker green on hover */
+        }
+
+        .remove-event-btn {
+            background-color: #dc3545; /* Red remove button */
+            color: #ffffff; /* White text */
+            margin-left: 10px;
+        }
+
+        .remove-event-btn:hover {
+            background-color: #c82333; /* Darker red on hover */
+        }
+
+        .logout-btn {
+            background-color: #6c757d; /* Gray logout button */
+            color: #ffffff; /* White text */
+        }
+
+        .logout-btn:hover {
+            background-color: #5a6268; /* Darker gray on hover */
+        }
+
+        .qr-code-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .qr-code {
+            max-width: 200px;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="home-container">
+        <h2>Welcome to BookMadi 🎉</h2>
+        <div>
+            <button class="create-event-btn" onclick="window.location.href='{{ url_for('create_event') }}'">Create Event</button>
+            <button class="registered-events-btn" onclick="window.location.href='{{ url_for('registered_events') }}'">Registered Events</button>
+            <form action="{{ url_for('logout') }}" method="post" style="display:inline;">
+                <button type="submit" class="logout-btn">Logout</button>
+            </form>
+        </div>
+
+        <div class="event-list">
+            {% for event in events %}
+            <div class="event" id="event-{{ event.id }}">
+                {% if event.image_url %}
+                <img class="event-image" src="{{ event.image_url }}" alt="Event Image">
+                {% endif %}
+                <div class="event-details">
+                    <h3>{{ event.title }}</h3>
+                    <p><strong>Date:</strong> {{ event.date.strftime('%B %d, %Y') }}</p>
+                    <p><strong>Location:</strong> {{ event.location }}</p>
+                    <p>{{ event.description }}</p>
+                    <form action="{{ url_for('register_event', event_id=event.id) }}" method="post" style="display:inline;">
+                        <button type="submit" class="register-btn">Register</button>
+                    </form>
+                    <button class="remove-event-btn" onclick="removeEvent({{ event.id }})">Remove Event</button>
+                </div>
+                <div class="qr-code-container" id="qrCodeContainer-{{ event.id }}" style="display:none;">
+                    <img class="qr-code" id="qrCode-{{ event.id }}" src="" alt="QR Code">
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Function to remove event via AJAX
+            function removeEvent(eventId) {
+                fetch(`/remove_event/${eventId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({}),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById(`event-${eventId}`).remove();
+                        alert(data.message);
+                    } else {
+                        alert('Failed to remove event. Please try again later.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to remove event. Please try again later.');
+                });
+            }
+
+            // Function to generate QR code
+            function generateQRCode(eventId) {
+                fetch(`/generate_qr_code/${eventId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({}),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.qr_code_url) {
+                        document.getElementById(`qrCode-${eventId}`).src = data.qr_code_url;
+                        document.getElementById(`qrCodeContainer-${eventId}`).style.display = 'block';
+                    } else {
+                        alert('Failed to generate QR code. Please try again later.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to generate QR code. Please try again later.');
+                });
+            }
+
+            // Attach event listeners for generating QR code on button click
+            {% for event in events %}
+            document.getElementById(`event-{{ event.id }}`).addEventListener('click', function () {
+                generateQRCode({{ event.id }});
+            });
+
+            // Attach event listener for removing event
+            document.getElementById(`event-{{ event.id }}`).querySelector('.remove-event-btn').addEventListener('click', function (event) {
+                event.preventDefault();
+                removeEvent({{ event.id }});
+            });
+            {% endfor %}
+        });
+    </script>
+</body>
+</html>
